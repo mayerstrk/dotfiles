@@ -27,6 +27,7 @@
       - zed
       - zen
       - maccy
+      - morgen
     comms_casks:
       - slack
       - whatsapp
