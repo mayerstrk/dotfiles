@@ -77,6 +77,9 @@ set --export PATH $BUN_INSTALL/bin $PATH
 # enable starship promt https://starship.rs/guide
 starship init fish | source
 
+# zoxide (smarter cd, replaces z). Import old history once: zoxide import --from z
+command -q zoxide; and zoxide init fish | source
+
 # PATH
 export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
 export ANDROID_HOME="$HOME/Library/Android/sdk"
