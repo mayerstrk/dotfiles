@@ -45,6 +45,11 @@
         path: /opt/homebrew/bin
       loop: "{{ homebrew_taps }}"
 
+    - name: Trust third-party Homebrew taps
+      ansible.builtin.command: "/opt/homebrew/bin/brew trust --tap {{ item }}"
+      loop: "{{ homebrew_taps }}"
+      changed_when: false
+
     - name: Install status bar (sketchybar, borders)
       community.general.homebrew:
         name: "{{ bar_formulae }}"
