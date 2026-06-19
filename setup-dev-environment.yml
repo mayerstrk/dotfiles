@@ -356,9 +356,8 @@
           'fisher_plugins': install_report.fisher_plugins + [item.item]
         }) }}"
       loop: "{{ plugin_installation.results }}"
-      when: item.changed and not item.failed
       no_log: true
-      when: fish_status.rc == 0
+      when: fish_status.rc == 0 and item.changed and not item.failed
       tags:
         - fish
         - fisher
