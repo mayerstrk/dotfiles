@@ -3,6 +3,17 @@ return {
 	{
 		"folke/noice.nvim",
 		opts = function(_, opts)
+			opts = opts or {}
+			opts.routes = opts.routes or {}
+			opts.commands = opts.commands or {}
+			opts.presets = opts.presets or {}
+			opts.cmdline = opts.cmdline or {}
+			opts.popupmenu = opts.popupmenu or {}
+
+			opts.cmdline.enabled = true
+			opts.cmdline.view = "cmdline"
+			opts.popupmenu.enabled = false
+
 			table.insert(opts.routes, {
 				filter = {
 					event = "notify",
@@ -10,17 +21,21 @@ return {
 				},
 				opts = { skip = true },
 			})
+
 			local focused = true
+
 			vim.api.nvim_create_autocmd("FocusGained", {
 				callback = function()
 					focused = true
 				end,
 			})
+
 			vim.api.nvim_create_autocmd("FocusLost", {
 				callback = function()
 					focused = false
 				end,
 			})
+
 			table.insert(opts.routes, 1, {
 				filter = {
 					cond = function()
@@ -31,20 +46,20 @@ return {
 				opts = { stop = false },
 			})
 
-			opts.commands = {
-				all = {
-					-- options for the message history that you get with `:Noice`
-					view = "split",
-					opts = { enter = true, format = "details" },
-					filter = {},
-				},
+			opts.commands.all = {
+				view = "split",
+				opts = { enter = true, format = "details" },
+				filter = {},
 			}
 
 			vim.api.nvim_create_autocmd("FileType", {
 				pattern = "markdown",
 				callback = function(event)
 					vim.schedule(function()
-						require("noice.text.markdown").keys(event.buf)
+						local ok, markdown = pcall(require, "noice.text.markdown")
+						if ok then
+							markdown.keys(event.buf)
+						end
 					end)
 				end,
 			})
@@ -52,7 +67,6 @@ return {
 			opts.presets.lsp_doc_border = true
 		end,
 	},
-
 	{
 		"rcarriga/nvim-notify",
 		opts = {
@@ -71,6 +85,7 @@ return {
 	-- buffer line
 	{
 		"akinsho/bufferline.nvim",
+		enabled = false,
 		event = "VeryLazy",
 		keys = {
 			{ "<Tab>", "<Cmd>BufferLineCycleNext<CR>", desc = "Next tab" },
@@ -167,6 +182,18 @@ return {
 				},
 			},
 		},
+
+		config = function(_, opts)
+			require("snacks").setup(opts)
+			-- local accent = "#f38ba8" -- warm pink-orange tone
+			-- vim.api.nvim_set_hl(0, "SnacksDashboard", { fg = accent, bold = true })
+			-- vim.api.nvim_set_hl(0, "SnacksDashboardHeader", { fg = accent, bold = true })
+			-- vim.api.nvim_set_hl(0, "SnacksDashboardFooter", { fg = accent, italic = true })
+			-- vim.api.nvim_set_hl(0, "SnacksDashboardKey", { fg = accent, bold = true })
+			-- vim.api.nvim_set_hl(0, "SnacksDashboardNormal", { fg = accent })
+			-- vim.api.nvim_set_hl(0, "SnacksDashboardIcon", { fg = accent })
+			-- vim.api.nvim_set_hl(0, "SnacksDashboardDesc", { fg = accent })
+		end,
 	},
 	{
 		"nvim-treesitter/nvim-treesitter-context",
@@ -200,4 +227,15 @@ return {
 	-- 		require("mini.animate").setup()
 	-- 	end,
 	-- },
+	{
+		"lewis6991/gitsigns.nvim",
+		opts = {
+			current_line_blame = true,
+			current_line_blame_opts = {
+				delay = 200, -- milliseconds before blame appears (default is 400)
+				virt_text_pos = "eol", -- 'eol' | 'overlay' | 'right_align'
+			},
+			current_line_blame_formatter = "<author>, <author_time:%R> - <summary>",
+		},
+	},
 }

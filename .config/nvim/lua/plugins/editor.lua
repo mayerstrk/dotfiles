@@ -2,7 +2,6 @@ return {
 	{
 		enabled = false,
 		"folke/flash.nvim",
-		---@type Flash.Config
 		opts = {
 			search = {
 				forward = true,
@@ -12,9 +11,33 @@ return {
 			},
 		},
 	},
-
 	{
-		"echasnovski/mini.hipatterns",
+		"folke/snacks.nvim",
+		---@type snacks.Config
+		opts = {
+			lazygit = {
+				-- your lazygit configuration comes here
+				-- or leave it empty to use the default settings
+				-- refer to the configuration section below
+			},
+			picker = {
+				-- your picker configuration comes here
+				-- or leave it empty to use the default settings
+				-- refer to the configuration section below
+			},
+		},
+		keys = {
+			{
+				"<leader>fp",
+				function()
+					Snacks.picker.projects()
+				end,
+				desc = "Projects",
+			},
+		},
+	},
+	{
+		"nvim-mini/mini.hipatterns",
 		event = "BufReadPre",
 		opts = {
 			highlighters = {
@@ -73,6 +96,7 @@ return {
 					local builtin = require("telescope.builtin")
 					builtin.find_files({
 						no_ignore = false,
+						layout_strategy = "vertical",
 						hidden = true,
 					})
 				end,
@@ -84,6 +108,7 @@ return {
 					local builtin = require("telescope.builtin")
 					builtin.live_grep({
 						additional_args = { "--hidden" },
+						layout_strategy = "vertical",
 					})
 				end,
 				desc = "Search for a string in your current working directory and get results live as you type, respects .gitignore",
@@ -92,7 +117,7 @@ return {
 				"\\\\",
 				function()
 					local builtin = require("telescope.builtin")
-					builtin.buffers()
+					builtin.buffers({ layout_strategy = "vertical" })
 				end,
 				desc = "Lists open buffers",
 			},
@@ -100,7 +125,7 @@ return {
 				";t",
 				function()
 					local builtin = require("telescope.builtin")
-					builtin.help_tags()
+					builtin.help_tags({ layout_strategy = "vertical" })
 				end,
 				desc = "Lists available help tags and opens a new window with the relevant help info on <cr>",
 			},
@@ -108,7 +133,7 @@ return {
 				";;",
 				function()
 					local builtin = require("telescope.builtin")
-					builtin.resume()
+					builtin.resume({ layout_strategy = "vertical" })
 				end,
 				desc = "Resume the previous telescope picker",
 			},
@@ -116,7 +141,9 @@ return {
 				";e",
 				function()
 					local builtin = require("telescope.builtin")
-					builtin.diagnostics()
+					builtin.diagnostics({
+						layout_strategy = "vertical",
+					})
 				end,
 				desc = "Lists Diagnostics for all open buffers or a specific buffer",
 			},
@@ -124,7 +151,9 @@ return {
 				";s",
 				function()
 					local builtin = require("telescope.builtin")
-					builtin.treesitter()
+					builtin.treesitter({
+						layout_strategy = "vertical",
+					})
 				end,
 				desc = "Lists Function names, variables, from Treesitter",
 			},
@@ -158,7 +187,7 @@ return {
 
 			opts.defaults = vim.tbl_deep_extend("force", opts.defaults, {
 				wrap_results = true,
-				layout_strategy = "horizontal",
+				layout_strategy = "vertical",
 				layout_config = { prompt_position = "top" },
 				sorting_strategy = "ascending",
 				winblend = 0,
@@ -206,11 +235,40 @@ return {
 				},
 			}
 			telescope.setup(opts)
+
 			require("telescope").load_extension("fzf")
 			require("telescope").load_extension("file_browser")
 		end,
 	},
-
+	{
+		"stevearc/oil.nvim",
+		---@module 'oil'
+		---@type oil.SetupOpts
+		opts = {
+			win_options = {
+				winbar = "%{v:lua.OilWinbar()}",
+			},
+			delete_to_trash = true,
+			keys = {
+				{ "-", "<CMD>Oil<CR>", desc = "Open Oil" },
+			},
+		},
+		-- Optional dependencies
+		dependencies = { { "nvim-mini/mini.icons", opts = {} } },
+		-- dependencies = { "nvim-tree/nvim-web-devicons" }, -- use if you prefer nvim-web-devicons
+		-- Lazy loading is not recommended because it is very tricky to make it work correctly in all situations.
+		lazy = false,
+		init = function()
+			function OilWinbar()
+				local oil = require("oil")
+				local dir = oil.get_current_dir()
+				if dir then
+					return vim.fn.fnamemodify(dir, ":.")
+				end
+				return ""
+			end
+		end,
+	},
 	{
 		"saghen/blink.cmp",
 		opts = {
@@ -225,5 +283,15 @@ return {
 				},
 			},
 		},
+	},
+	{
+		"Sebastian-Nielsen/better-type-hover",
+		config = function()
+			require("better-type-hover").setup({})
+
+			vim.keymap.set("n", "K", function()
+				require("better-type-hover").hover()
+			end, { desc = "Hover (expanded TS types)" })
+		end,
 	},
 }
