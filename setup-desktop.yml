@@ -39,36 +39,28 @@
 
   tasks:
     - name: Add Homebrew taps
-      ansible.builtin.command: "/opt/homebrew/bin/brew tap {{ item }}"
+      community.general.homebrew_tap:
+        name: "{{ item }}"
+        state: present
+        path: /opt/homebrew/bin
       loop: "{{ homebrew_taps }}"
-      register: tap_result
-      changed_when: "'Tapped' in tap_result.stdout"
 
     - name: Install status bar (sketchybar, borders)
-      ansible.builtin.shell: "/opt/homebrew/bin/brew install {{ item }}"
-      loop: "{{ bar_formulae }}"
-      register: bar_result
-      changed_when: "'already installed' not in bar_result.stderr"
-      failed_when:
-        - bar_result.rc != 0
-        - "'already installed' not in bar_result.stderr"
+      community.general.homebrew:
+        name: "{{ bar_formulae }}"
+        state: present
+        path: /opt/homebrew/bin
       when: install_bar | lower != 'n'
 
     - name: Install desktop apps (window manager, terminal, editor, browser, clipboard, font)
-      ansible.builtin.shell: "/opt/homebrew/bin/brew install --cask {{ item }}"
-      loop: "{{ desktop_casks }}"
-      register: cask_result
-      changed_when: "'already installed' not in cask_result.stderr"
-      failed_when:
-        - cask_result.rc != 0
-        - "'already installed' not in cask_result.stderr"
+      community.general.homebrew_cask:
+        name: "{{ desktop_casks }}"
+        state: present
+        path: /opt/homebrew/bin
 
     - name: Install comms apps (Slack, WhatsApp)
-      ansible.builtin.shell: "/opt/homebrew/bin/brew install --cask {{ item }}"
-      loop: "{{ comms_casks }}"
-      register: comms_result
-      changed_when: "'already installed' not in comms_result.stderr"
-      failed_when:
-        - comms_result.rc != 0
-        - "'already installed' not in comms_result.stderr"
+      community.general.homebrew_cask:
+        name: "{{ comms_casks }}"
+        state: present
+        path: /opt/homebrew/bin
       when: install_comms | lower == 'y'
