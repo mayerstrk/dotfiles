@@ -113,7 +113,7 @@
     - name: Set up the Rust stable toolchain via rustup
       ansible.builtin.command: rustup default stable
       register: rustup_result
-      changed_when: "'installed' in (rustup_result.stdout + rustup_result.stderr)"
+      changed_when: false
       failed_when: false
       environment:
         PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
@@ -124,7 +124,7 @@
     - name: Install Node LTS through pnpm (keeps npm out of the workflow)
       ansible.builtin.command: pnpm env use --global lts
       register: pnpm_node_result
-      changed_when: "'Node.js' in (pnpm_node_result.stdout | default(''))"
+      changed_when: false
       failed_when: false
       environment:
         PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
