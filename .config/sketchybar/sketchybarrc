@@ -1,0 +1,53 @@
+c!/bin/bash
+
+source "$CONFIG_DIR/colors.sh"
+
+PLUGIN_DIR="$CONFIG_DIR/plugins"
+ITEM_DIR="$CONFIG_DIR/items"
+
+# Bar configuration using arrays
+bar=(
+  height=40
+  blur_radius=0
+  position=top
+  sticky=off
+  padding_left=10
+  padding_right=10
+  color=$BAR_COLOR
+)
+
+# Default item properties
+defaults=(
+  icon.font="BlexMono Nerd Font:Regular:15.5"
+  icon.color=$TEXT_COLOR
+  background.color=$ITEM_BG_COLOR
+  label.font="BlexMono Nerd Font:Regular:15.5"
+  label.color=$TEXT_COLOR
+  padding_left=5
+  padding_right=5
+  label.padding_left=5
+  label.padding_right=5
+  icon.padding_left=5
+  icon.padding_right=5
+)
+
+# Batch configuration
+sketchybar --bar "${bar[@]}" \
+  --default "${defaults[@]}" \
+  --add event aerospace_workspace_change \
+  --add event theme_change AppleInterfaceThemeChangedNotification \
+  --add item theme_listener left \
+  --set theme_listener drawing=off \
+  script="$PLUGIN_DIR/theme_change.sh" \
+  --subscribe theme_listener theme_change
+
+# Left
+source $ITEM_DIR/workspace.sh
+source $ITEM_DIR/front_app.sh
+
+# Right
+source $ITEM_DIR/clock.sh
+source $ITEM_DIR/battery.sh
+source $ITEM_DIR/spotify.sh
+
+sketchybar --update
