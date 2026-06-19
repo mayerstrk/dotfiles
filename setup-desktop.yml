@@ -21,12 +21,12 @@
       - sketchybar
       - borders
     desktop_casks:
+      - font-blex-mono-nerd-font
       - aerospace
       - wezterm
       - zed
       - zen
       - maccy
-      - font-blex-mono-nerd-font
     comms_casks:
       - slack
       - whatsapp
