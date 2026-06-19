@@ -7,16 +7,37 @@
     dotfiles_local_path: "~/.dotfiles"
     install_report: {}
     homebrew_packages:
+      # shell and prompt
       - fish
-      - pipx
+      - starship
+      # core cli
       - git
-      - lazygit
-      - neovim
-      - ripgrep
+      - gh
       - ghq
+      - jj
+      - lazygit
+      - git-delta
+      - difftastic
+      - zoxide
+      - fzf
+      - fd
+      - ripgrep
       - eza
       - bat
-      - fzf
+      - wget
+      # editor and multiplexers
+      - neovim
+      - tree-sitter-cli
+      - luarocks
+      - zellij
+      - tmux
+      # languages and toolchains (c/c++ come from Xcode CLT, see the Makefile)
+      - go
+      - rustup
+      - uv
+      - pipx
+      - pnpm
+      - tfenv
 
   pre_tasks:
     - name: Verify environment and initialize
@@ -101,9 +122,32 @@
           loop_control:
             label: "{{ item.item }}"
       when: homebrew_status.rc == 0 or homebrew_installation is success
-      tags: 
+      tags:
         - setup
         - packages
+
+    - name: Set up the Rust stable toolchain via rustup
+      ansible.builtin.command: rustup default stable
+      register: rustup_result
+      changed_when: "'installed' in (rustup_result.stdout + rustup_result.stderr)"
+      failed_when: false
+      environment:
+        PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
+      tags:
+        - setup
+        - rust
+
+    - name: Install Node LTS through pnpm (keeps npm out of the workflow)
+      ansible.builtin.command: pnpm env use --global lts
+      register: pnpm_node_result
+      changed_when: "'Node.js' in (pnpm_node_result.stdout | default(''))"
+      failed_when: false
+      environment:
+        PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
+        PNPM_HOME: "{{ ansible_env.HOME }}/Library/pnpm"
+      tags:
+        - setup
+        - node
 
     - name: Verify Fish shell
       block:
