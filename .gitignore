@@ -27,3 +27,12 @@
 **/*token*
 **/*password*
 **/*private*
+
+# Tooling artifacts and machine state
+.config/nvim/node_modules/
+.config/nvim/.nvimlog
+.config/nvim/2
+.config/package-lock.json
+.config/jj/repos/
+.config/sketchybar.bk/
+.config/lazygit/lazygit.bak/
