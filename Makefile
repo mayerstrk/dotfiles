@@ -28,9 +28,9 @@ brew: clt
 ansible: brew
 	@$(BREW) list ansible >/dev/null 2>&1 || $(BREW) install ansible
 
-# Run the dev environment playbook.
+# Run the dev environment playbook. -K prompts for sudo (needed to set the login shell).
 run: bootstrap
-	@eval "$$($(BREW) shellenv)" && ansible-playbook $(PLAYBOOK)
+	@eval "$$($(BREW) shellenv)" && ansible-playbook -K $(PLAYBOOK)
 
 # Run the desktop playbook (window manager, bar, GUI apps).
 desktop: bootstrap
