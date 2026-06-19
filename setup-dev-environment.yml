@@ -95,32 +95,16 @@
   tasks:
     - name: Install Homebrew packages
       block:
-        - name: Install Homebrew package {{ item }}
-          ansible.builtin.shell:
-            cmd: "/opt/homebrew/bin/brew install {{ item }}"
-          register: package_result
-          loop: "{{ homebrew_packages }}"
-          changed_when: "'already installed' not in package_result.stderr"
-          failed_when: 
-            - package_result.rc != 0 
-            - "'already installed' not in package_result.stderr"
-        
-        - name: Report package installation results
-          ansible.builtin.debug:
-            msg: "{{ item.item }} {{ 'was already installed' if 'already installed' in item.stderr else ('was installed successfully' if item.rc == 0 else 'failed to install') }}"
-          loop: "{{ package_result.results }}"
-          loop_control:
-            label: "{{ item.item }}"
+        - name: Ensure Homebrew packages are present
+          community.general.homebrew:
+            name: "{{ homebrew_packages }}"
+            state: present
+            path: /opt/homebrew/bin
+          register: brew_packages
 
-        - name: Track package installation results
+        - name: Track installed packages
           set_fact:
-            install_report: "{{ install_report | combine({
-              'packages_installed': install_report.packages_installed + [item.item],
-              'packages_failed': install_report.packages_failed + ([item.item] if item.failed else [])
-            }) }}"
-          loop: "{{ package_result.results }}"
-          loop_control:
-            label: "{{ item.item }}"
+            install_report: "{{ install_report | combine({'packages_installed': homebrew_packages}) }}"
       when: homebrew_status.rc == 0 or homebrew_installation is success
       tags:
         - setup
