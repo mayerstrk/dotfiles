@@ -1,9 +1,10 @@
 local discipline = require("craftzdog.discipline")
 
-discipline.cowboy()
-
 local keymap = vim.keymap
 local opts = { noremap = true, silent = true }
+
+-- Oil open parent directory
+keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
 
 -- Do things without affecting the registers
 keymap.set("n", "x", '"_x')
@@ -19,9 +20,15 @@ keymap.set("n", "<Leader>D", '"_D')
 keymap.set("v", "<Leader>d", '"_d')
 keymap.set("v", "<Leader>D", '"_D')
 
--- Increment/decrement
-keymap.set("n", "+", "<C-a>")
-keymap.set("n", "-", "<C-x>")
+-- Move lines
+vim.keymap.set("n", "<C-Up>", ":m .-2<CR>==", { desc = "Move line up" })
+vim.keymap.set("n", "<C-Down>", ":m .+1<CR>==", { desc = "Move line down" })
+vim.keymap.set("v", "<C-Up>", ":m '<-2<CR>gv=gv", { desc = "Move selection up" })
+vim.keymap.set("v", "<C-Down>", ":m '>+1<CR>gv=gv", { desc = "Move selection down" })
+
+-- -- Increment/decrement
+-- keymap.set("n", "+", "<C-a>")
+-- keymap.set("n", "-", "<C-x>")
 
 -- Select all
 keymap.set("n", "<C-a>", "gg<S-v>G")
