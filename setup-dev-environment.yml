@@ -309,38 +309,13 @@
             msg: "Fisher {{ 'was installed successfully' if fisher_installation is success else 'failed to install' }}"
           when: not fisher_status.stat.exists
 
-    - name: Install Fisher plugins
-      ansible.builtin.shell: "fish -c 'fisher install {{ item }}'"
-      loop: "{{ lookup('file', '{{ dotfiles_local_path | expanduser }}/.config/fish/fish_plugins').split('\n') }}"
+    - name: Sync Fisher plugins from fish_plugins
+      ansible.builtin.command: fish -c "fisher update"
       args:
         executable: /opt/homebrew/bin/fish
-      when:
-        - item != ''
-        - fisher_status.stat.exists or fisher_installation is success
-      register: plugin_installation
-      ignore_errors: true
-
-    - name: Log plugin installation status
-      ansible.builtin.debug:
-        msg: >-
-          Fisher plugin {{ item.item }}: 
-          {%- if 'Cannot install' in item.stderr %} already installed
-          {%- elif item.failed %} failed to install
-          {%- else %} installed successfully
-          {%- endif %}
-      loop: "{{ plugin_installation.results }}"
-      when: item.item != ''
-      loop_control:
-        label: "{{ item.item }}"
-
-    - name: Update Fisher plugins report
-      set_fact:
-        install_report: "{{ install_report | combine({
-          'fisher_plugins': install_report.fisher_plugins + [item.item]
-        }) }}"
-      loop: "{{ plugin_installation.results }}"
-      no_log: true
-      when: fish_status.rc == 0 and item.changed and not item.failed
+      register: fisher_sync
+      changed_when: "'Installing' in fisher_sync.stdout or 'Updating' in fisher_sync.stdout"
+      when: fish_status.rc == 0 and (fisher_status.stat.exists or fisher_installation is success)
       tags:
         - fish
         - fisher
