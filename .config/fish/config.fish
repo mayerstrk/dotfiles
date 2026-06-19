@@ -17,7 +17,6 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
-
 # theme
 set -g theme_color_scheme terminal-dark
 set -g fish_prompt_pwd_dir_length 1
@@ -30,8 +29,16 @@ alias ls "ls -p -G"
 alias la "ls -A"
 alias ll "ls -l"
 alias lla "ll -A"
-alias g git
+alias git-fetch-parent "git name-rev --name-only (git rev-parse (git log --merges -1 --format=%H)^2) | sed 's/[\^~].*//'"
+alias nuke-pycache "find . -type d -name "__pycache__" -exec rm -rf {} +"
 command -qv nvim && alias vim nvim
+
+function git-clean-branches
+    set -l current (git branch --show-current)
+    git for-each-ref --format='%(refname:short)' refs/heads \
+        | grep -vFx -- $current \
+        | xargs -r git branch -D
+end
 
 set -gx EDITOR nvim
 
@@ -72,3 +79,19 @@ starship init fish | source
 
 # PATH
 export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
+export ANDROID_HOME="$HOME/Library/Android/sdk"
+export NDK_HOME="$ANDROID_HOME/ndk/$(ls -1 $ANDROID_HOME/ndk)"
+export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
+
+# Generated for envman. Do not edit.
+test -s ~/.config/envman/load.fish; and source ~/.config/envman/load.fish
+
+# opencode
+fish_add_path /Users/mstark/.opencode/bin
+
+# pnpm
+set -gx PNPM_HOME "/Users/mstark/Library/pnpm"
+if not string match -q -- $PNPM_HOME $PATH
+  set -gx PATH "$PNPM_HOME" $PATH
+end
+# pnpm end
