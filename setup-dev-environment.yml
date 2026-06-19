@@ -310,7 +310,7 @@
           when: not fisher_status.stat.exists
 
     - name: Sync Fisher plugins from fish_plugins
-      ansible.builtin.command: fish -c "fisher update"
+      ansible.builtin.shell: fisher update
       args:
         executable: /opt/homebrew/bin/fish
       register: fisher_sync
