@@ -1,0 +1,74 @@
+---
+# macOS desktop: tiling window manager, status bar, window borders, GUI apps.
+# Kept separate from setup-dev-environment.yml so a server/CLI-only box can skip it.
+# Prompts before the optional pieces (status bar, comms apps).
+- name: Setup macOS desktop environment
+  hosts: localhost
+  vars_prompt:
+    - name: install_bar
+      prompt: "Install the status bar (sketchybar + borders)? [Y/n]"
+      private: false
+      default: "Y"
+    - name: install_comms
+      prompt: "Install comms apps (Slack, WhatsApp)? [y/N]"
+      private: false
+      default: "N"
+  vars:
+    homebrew_taps:
+      - FelixKratz/formulae
+      - nikitabobko/tap
+    bar_formulae:
+      - sketchybar
+      - borders
+    desktop_casks:
+      - aerospace
+      - wezterm
+      - zed
+      - zen
+      - maccy
+      - font-hack-nerd-font
+    comms_casks:
+      - slack
+      - whatsapp
+
+  pre_tasks:
+    - name: Require macOS
+      ansible.builtin.fail:
+        msg: "This playbook is macOS-only. Current OS: {{ ansible_facts['os_family'] }}"
+      when: ansible_facts['os_family'] != 'Darwin'
+
+  tasks:
+    - name: Add Homebrew taps
+      ansible.builtin.command: "/opt/homebrew/bin/brew tap {{ item }}"
+      loop: "{{ homebrew_taps }}"
+      register: tap_result
+      changed_when: "'Tapped' in tap_result.stdout"
+
+    - name: Install status bar (sketchybar, borders)
+      ansible.builtin.shell: "/opt/homebrew/bin/brew install {{ item }}"
+      loop: "{{ bar_formulae }}"
+      register: bar_result
+      changed_when: "'already installed' not in bar_result.stderr"
+      failed_when:
+        - bar_result.rc != 0
+        - "'already installed' not in bar_result.stderr"
+      when: install_bar | lower != 'n'
+
+    - name: Install desktop apps (window manager, terminal, editor, browser, clipboard, font)
+      ansible.builtin.shell: "/opt/homebrew/bin/brew install --cask {{ item }}"
+      loop: "{{ desktop_casks }}"
+      register: cask_result
+      changed_when: "'already installed' not in cask_result.stderr"
+      failed_when:
+        - cask_result.rc != 0
+        - "'already installed' not in cask_result.stderr"
+
+    - name: Install comms apps (Slack, WhatsApp)
+      ansible.builtin.shell: "/opt/homebrew/bin/brew install --cask {{ item }}"
+      loop: "{{ comms_casks }}"
+      register: comms_result
+      changed_when: "'already installed' not in comms_result.stderr"
+      failed_when:
+        - comms_result.rc != 0
+        - "'already installed' not in comms_result.stderr"
+      when: install_comms | lower == 'y'
