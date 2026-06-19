@@ -1,0 +1,11 @@
+#:schema https://docs.jj-vcs.dev/latest/config-schema.json
+
+[ui]
+diff-formatter = ["difft", "--color=always", "$left", "$right"]
+
+[user]
+name = "mayerstrk"
+email = "mayerstrk@gmail.com"
+
+[aliases]
+push = ["util", "exec", "--", "bash", "-c", "make pre-push && jj git push \"$@\"", ""]
