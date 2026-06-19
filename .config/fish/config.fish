@@ -83,8 +83,10 @@ command -q zoxide; and zoxide init fish | source
 # PATH
 export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
 export ANDROID_HOME="$HOME/Library/Android/sdk"
-export NDK_HOME="$ANDROID_HOME/ndk/$(ls -1 $ANDROID_HOME/ndk)"
-export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
+if test -d "$ANDROID_HOME/ndk"
+    export NDK_HOME="$ANDROID_HOME/ndk/$(ls -1 $ANDROID_HOME/ndk | head -1)"
+end
+test -d "/Applications/Android Studio.app"; and export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 
 # Generated for envman. Do not edit.
 test -s ~/.config/envman/load.fish; and source ~/.config/envman/load.fish
