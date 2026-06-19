@@ -335,7 +335,6 @@
         - fisher_status.stat.exists or fisher_installation is success
       register: plugin_installation
       ignore_errors: true
-      no_log: true
 
     - name: Log plugin installation status
       ansible.builtin.debug:
