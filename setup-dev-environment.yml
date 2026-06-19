@@ -287,42 +287,8 @@
         - fish
         - config
 
-    - name: Manage Fisher installation
-      block:
-        - name: Check Fisher status
-          ansible.builtin.stat:
-            path: "~/.config/fish/functions/fisher.fish"
-          register: fisher_status
-
-        - name: Report Fisher status
-          ansible.builtin.debug:
-            msg: "Fisher {{ 'is already installed' if fisher_status.stat.exists else 'needs to be installed' }}"
-          
-        - name: Install Fisher
-          ansible.builtin.shell: |
-            curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | /opt/homebrew/bin/fish -c "source && fisher install jorgebucaran/fisher"
-          when: not fisher_status.stat.exists
-          register: fisher_installation
-
-        - name: Report Fisher installation
-          ansible.builtin.debug:
-            msg: "Fisher {{ 'was installed successfully' if fisher_installation is success else 'failed to install' }}"
-          when: not fisher_status.stat.exists
-
-    - name: Sync Fisher plugins from fish_plugins
-      ansible.builtin.shell: fisher update
-      args:
-        executable: /opt/homebrew/bin/fish
-      register: fisher_sync
-      changed_when: "'Installing' in fisher_sync.stdout or 'Updating' in fisher_sync.stdout"
-      failed_when:
-        - fisher_sync.rc != 0
-        - "'Cannot install' not in fisher_sync.stderr"
-      when: fish_status.rc == 0 and (fisher_status.stat.exists or fisher_installation is success)
-      tags:
-        - fish
-        - fisher
-        - plugins
+    # Fisher and all fish plugins (fzf.fish, etc.) are vendored in this repo and
+    # symlinked into ~/.config/fish, so there is nothing to install or sync here.
 
     - name: Configure default shell
       block:
@@ -378,10 +344,6 @@
 
           Shell Configuration:
           - Fish Shell: {{ 'Installed' if fish_status.rc == 0 else 'Not installed' }}
-          - Fisher: {{ 'Installed' if fisher_status.stat.exists else 'Not installed' }}
-          {% if install_report.fisher_plugins %}
-          - Plugins: {{ install_report.fisher_plugins | join(', ') }}
-          {% endif %}
 
           Dotfiles:
           - Status: {{ 'Cloned successfully' if dotfiles_clone.changed else 'Already existed' }}
